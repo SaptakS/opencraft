@@ -46,8 +46,9 @@ class OpenEdXInstanceFactory(DjangoModelFactory):
         # random value for 'internal_lms_domain' if neither 'sub_domain' nor 'internal_lms_domain' are provided.
         if 'sub_domain' not in kwargs and 'internal_lms_domain' not in kwargs:
             kwargs = kwargs.copy()
-            random_id = str(uuid.uuid4())[:8]
+            random_id = str(uuid.uuid4())[:6]
             sub_domain = '{}.integration'.format(random_id)
+            kwargs['random_prefix'] = random_id
             kwargs['internal_lms_domain'] = generate_internal_lms_domain(sub_domain)
         return super(OpenEdXInstanceFactory, cls).create(*args, **kwargs)
 
