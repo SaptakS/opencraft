@@ -21,6 +21,8 @@ jobs:
     parameters:
         shard:
             type: integer
+    environment:
+        SHARD: <<parameters.shard>>
     steps:
       - checkout
       - restore_cache:
@@ -38,7 +40,8 @@ jobs:
           name: Wait for MongoDB
           command: dockerize -wait tcp://localhost:27017 -timeout 10s
       - run:
-          command: SHARD=<< parameters.shard >> echo $SHARD
+          command: |
+              echo $SHARD
           #- run:
           #    name: Install Dependencies
           #    command: |
