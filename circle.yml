@@ -24,7 +24,6 @@ jobs:
             type: string
     environment:
         TEST_GROUP: <<parameters.tests_group>>
-        COVERAGE_FILE: /tmp/coverage/$CIRCLE_SHA1/.coverage.`date +%s`
     steps:
       - checkout
       - restore_cache:
@@ -78,6 +77,7 @@ jobs:
       - run:
           name: Run Tests
           command: |
+            export COVERAGE_FILE=/tmp/coverage/$CIRCLE_SHA1/.coverage.`date +%s`
             . venv/bin/activate
             mkdir -p /tmp/coverage/$CIRCLE_SHA1
             make << parameters.tests_type >>

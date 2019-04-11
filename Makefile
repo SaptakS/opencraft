@@ -27,7 +27,7 @@ WORKERS_LOW_PRIORITY ?= 3
 SHELL ?= /bin/bash
 HONCHO_MANAGE := honcho run python3 manage.py
 HONCHO_MANAGE_TESTS := honcho -e .env.test run python3 manage.py
-RUN_JS_TESTS := xvfb-run --auto-servernum nyc --reporter=lcov jasmine-ci --logs --browser firefox
+RUN_JS_TESTS := xvfb-run --auto-servernum nyc --include=**/*.spec.js --reporter=lcov jasmine-ci --logs --browser firefox
 
 # Parameters ##################################################################
 
@@ -136,9 +136,9 @@ endif
 
 test.js: clean static_external ## Run JS tests.
 	cd instance/tests/js && $(RUN_JS_TESTS)
-	nyc report
+	cd instance/tests/js && nyc report
 	cd registration/tests/js && $(RUN_JS_TESTS)
-	nyc report
+	cd instance/tests/js && nyc report
 
 test.instance_js_web: clean static_external ## Run instance-specific JS tests.
 	cd instance/tests/js && jasmine --host 0.0.0.0
