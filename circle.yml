@@ -27,10 +27,6 @@ jobs:
       - checkout
       - restore_cache:
           key: dependencies-{{ checksum "requirements.txt" }}
-      - persist_to_workspace:
-          root: /tmp
-          paths:
-              - coverage
       - run:
           name: Wait for Redis
           command: dockerize -wait tcp://localhost:6379 -timeout 10s
@@ -45,7 +41,12 @@ jobs:
           command: dockerize -wait tcp://localhost:27017 -timeout 10s
       - run:
           command: |
-              echo $SHARD >> /tmp/<<parameters.shard>>.txt
+              mkdir /tmp/coverage
+              echo $SHARD >> /tmp/coverage/<<parameters.shard>>.txt
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+              - coverage
           #- run:
           #    name: Install Dependencies
           #    command: |
