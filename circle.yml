@@ -2,12 +2,11 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: circleci/python:3.5.4-browsers
+      - image: circleci/python:3.5.4-node-browsers
         environment:
           DEBUG: 'true'
           DEFAULT_FORK: 'open-craft/edx-platform'
           LOAD_BALANCER_FRAGMENT_NAME_PREFIX: 'integration-'
-          TEST_RUNNER: 'opencraft.tests.utils.CircleCIParallelTestRunner'
       - image: redis
       - image: mongo:3.2-jessie
       - image: "circleci/mysql:5"
@@ -19,10 +18,13 @@ jobs:
           POSTGRES_USER: circleci
           POSTGRES_DB: circle_test
     parameters:
-        shard:
+        tests_group:
             type: integer
+        tests_type:
+            type: string
     environment:
-        SHARD: <<parameters.shard>>
+        TEST_GROUP: <<parameters.tests_group>>
+        COVERAGE_FILE: /tmp/coverage/$CIRCLE_SHA1/.coverage.$(date +%s)
     steps:
       - checkout
       - restore_cache:
@@ -40,61 +42,64 @@ jobs:
           name: Wait for MongoDB
           command: dockerize -wait tcp://localhost:27017 -timeout 10s
       - run:
+          name: Install Dependencies
           command: |
-              mkdir /tmp/coverage
-              echo $SHARD >> /tmp/coverage/<<parameters.shard>>.txt
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install --upgrade pip
+            pip install --upgrade virtualenv
+            # The jessie-updates and jessie-backports areas are now removed from the repositories. So
+            # the lines corresponding to those areas have to be removed to fix the resulting errors.
+            # This can be removed after upgrading to the image based on Debian Stretch.
+            sudo sed -i '/jessie-updates/d' /etc/apt/sources.list
+            sudo sed -i '/jessie-backports/d' /etc/apt/sources.list
+            sudo apt-get update; sudo apt-get install python2.7-dev
+            sudo apt-get install mysql-client
+            pip install -r requirements.txt
+            pip install -r cleanup_utils/requirements.txt
+            sudo apt-get install postgresql-client
+            sudo apt-get install unzip
+            sudo wget -P /tmp https://releases.hashicorp.com/consul/1.2.1/consul_1.2.1_linux_amd64.zip
+            make install_system_dependencies
+            npm install -g istanbul
+      - run:
+          name: Run Consul
+          command: |
+            sudo unzip /tmp/consul_1.2.1_linux_amd64.zip -d /usr/local/bin
+            consul agent -dev
+          background: true
+      - save_cache:
+          key: dependencies-{{ checksum "requirements.txt" }}
+          paths:
+            - "venv"
+      - run:
+          name: Create Database
+          command: make create_db
+      - run:
+          name: Run Tests
+          command: |
+            . venv/bin/activate
+            mkdir -p /tmp/coverage/$CIRCLE_SHA1
+            make << parameters.tests_type >>
+            ls /tmp/coverage/$CIRCLE_SHA1
+          no_output_timeout: 47m
+          environment:
+            ANSIBLE_HOST_KEY_CHECKING: False
       - persist_to_workspace:
           root: /tmp
           paths:
               - coverage
-          #- run:
-          #    name: Install Dependencies
-          #    command: |
-          #      python3 -m venv venv
-          #      . venv/bin/activate
-          #      pip install --upgrade pip
-          #      pip install --upgrade virtualenv
-          #      # The jessie-updates and jessie-backports areas are now removed from the repositories. So
-          #      # the lines corresponding to those areas have to be removed to fix the resulting errors.
-          #      # This can be removed after upgrading to the image based on Debian Stretch.
-          #      sudo sed -i '/jessie-updates/d' /etc/apt/sources.list
-          #      sudo sed -i '/jessie-backports/d' /etc/apt/sources.list
-          #      sudo apt-get update; sudo apt-get install python2.7-dev
-          #      sudo apt-get install mysql-client
-          #      pip install -r requirements.txt
-          #      pip install -r cleanup_utils/requirements.txt
-          #      sudo apt-get install postgresql-client
-          #      sudo apt-get install unzip
-          #      sudo wget -P /tmp https://releases.hashicorp.com/consul/1.2.1/consul_1.2.1_linux_amd64.zip
-          #- run:
-          #    name: Run Consul
-          #    command: |
-          #      sudo unzip /tmp/consul_1.2.1_linux_amd64.zip -d /usr/local/bin
-          #      consul agent -dev
-          #    background: true
-          #- save_cache:
-          #    key: dependencies-{{ checksum "requirements.txt" }}
-          #    paths:
-          #      - "venv"
-          #- run:
-          #    name: Create Database
-          #    command: make create_db
-          #- run:
-          #    name: Run Tests
-          #    command: |
-          #      . venv/bin/activate
-          #      bin/run-circleci-tests
-          #    no_output_timeout: 47m
-          #    environment:
-          #      ANSIBLE_HOST_KEY_CHECKING: False
   coverage:
     docker:
-        - image: circleci/python:3.5.4
+      - image: circleci/python:3.5.4
     steps:
-        - attach_workspace:
-            at: /tmp/workspace
-        - run:
-            command: tail /tmp/workspace/coverage/*
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          command: |
+              . venv/bin/activate
+              coverage combine /tmp/workspace/coverage/$CIRCLE_SHA1/
   cleanup:
     docker:
       - image: circleci/python:3.5.4
@@ -124,20 +129,33 @@ workflows:
   build-test-and-deploy:
     jobs:
         - build:
-            name: run_tests_0
-            shard: 0
+            name: quality_migrations_tests
+            tests_group: 0
+            tests_type: clean test.quality test.migrations_missing
         - build:
-            name: run_tests_1
-            shard: 1
+            name: unit_tests
+            tests_group: 0
+            tests_type: clean test.unit test.browser
         - build:
-            name: run_tests_2
-            shard: 2
-        - build:
-            name: run_tests_3
-            shard: 3
+            name: js_tests
+            tests_group: 0
+            tests_type: clean test.js
+        #- build:
+        #    name: integration_tests_group_1
+        #    tests_group: 1
+        #    tests_type: test.integration
+        #- build:
+        #    name: integration_tests_group_2
+        #    tests_group: 2
+        #    tests_type: test.integration
+        #- build:
+        #    name: integration_tests_group_3
+        #    tests_group: 3
+        #    tests_type: test.integration
         - coverage:
             requires:
-                - run_tests_0
-                - run_tests_1
-                - run_tests_2
-                - run_tests_3
+                - quality_migrations_tests
+                - unit_tests
+                #- integration_tests_group_1
+                #- integration_tests_group_2
+                #- integration_tests_group_3
