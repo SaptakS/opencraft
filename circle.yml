@@ -94,7 +94,7 @@ jobs:
         - attach_workspace:
             at: /tmp/workspace
         - run:
-            command: tail -R /tmp/workspace/*
+            command: tail /tmp/workspace/*
   cleanup:
     docker:
       - image: circleci/python:3.5.4
