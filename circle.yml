@@ -20,7 +20,7 @@ jobs:
           POSTGRES_DB: circle_test
     parameters:
         shard:
-            type: string
+            type: integer
     steps:
       - checkout
       - restore_cache:
