@@ -1,6 +1,6 @@
 version: 2.1
 jobs:
-  run-tests:
+  build:
     docker:
       - image: circleci/python:3.5.4-browsers
         environment:
@@ -76,7 +76,7 @@ jobs:
           #    no_output_timeout: 47m
           #    environment:
           #      ANSIBLE_HOST_KEY_CHECKING: False
-  tests-coverage:
+  coverage:
     docker:
         - image: circleci/python:3.5.4
     steps:
@@ -110,15 +110,15 @@ workflows:
   version: 2
   build-test-and-deploy:
     jobs:
-        - run-tests:
+        - build:
             name: run_tests_0
-        - run-tests:
+        - build:
             name: run_tests_1
-        - run-tests:
+        - build:
             name: run_tests_2
-        - run-tests:
+        - build:
             name: run_tests_3
-        - tests-coverage:
+        - coverage:
             requires:
                 - run_tests_0
                 - run_tests_1
