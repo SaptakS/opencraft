@@ -1,6 +1,6 @@
-version: 2
+version: 2.1
 jobs:
-  build:
+  run-tests:
     docker:
       - image: circleci/python:3.5.4-browsers
         environment:
@@ -18,75 +18,70 @@ jobs:
           PG_HOST: 127.0.0.1
           POSTGRES_USER: circleci
           POSTGRES_DB: circle_test
-    parallelism: 4
     steps:
       - checkout
       - restore_cache:
           key: dependencies-{{ checksum "requirements.txt" }}
       - run:
           name: Wait for Redis
-          command: |
-            while ! nc -z localhost 6379; do
-              sleep 0.1
-            done
+          command: dockerize -wait tcp://localhost:6379 -timeout 10s
       - run:
           name: Wait for Postgres
-          command: |
-            while ! nc -z localhost 5432; do
-              sleep 0.1
-            done
+          command: dockerize -wait tcp://localhost:5432 -timeout 10s
       - run:
           name: Wait for MySQL
-          command: |
-            while ! nc -z localhost 3306; do
-              sleep 0.1
-            done
+          command: dockerize -wait tcp://localhost:3306 -timeout 10s
       - run:
           name: Wait for MongoDB
-          command: |
-            while ! nc -z localhost 27017; do
-              sleep 0.1
-            done
+          command: dockerize -wait tcp://localhost:27017 -timeout 10s
       - run:
-          name: Install Dependencies
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install --upgrade pip
-            pip install --upgrade virtualenv
-            # The jessie-updates and jessie-backports areas are now removed from the repositories. So
-            # the lines corresponding to those areas have to be removed to fix the resulting errors.
-            # This can be removed after upgrading to the image based on Debian Stretch.
-            sudo sed -i '/jessie-updates/d' /etc/apt/sources.list
-            sudo sed -i '/jessie-backports/d' /etc/apt/sources.list
-            sudo apt-get update; sudo apt-get install python2.7-dev
-            sudo apt-get install mysql-client
-            pip install -r requirements.txt
-            pip install -r cleanup_utils/requirements.txt
-            sudo apt-get install postgresql-client
-            sudo apt-get install unzip
-            sudo wget -P /tmp https://releases.hashicorp.com/consul/1.2.1/consul_1.2.1_linux_amd64.zip
-      - run:
-          name: Run Consul
-          command: |
-            sudo unzip /tmp/consul_1.2.1_linux_amd64.zip -d /usr/local/bin
-            consul agent -dev
-          background: true
-      - save_cache:
-          key: dependencies-{{ checksum "requirements.txt" }}
-          paths:
-            - "venv"
-      - run:
-          name: Create Database
-          command: make create_db
-      - run:
-          name: Run Tests
-          command: |
-            . venv/bin/activate
-            bin/run-circleci-tests
-          no_output_timeout: 47m
-          environment:
-            ANSIBLE_HOST_KEY_CHECKING: False
+          command: echo $CIRCLE_NODE_INDEX
+          #- run:
+          #    name: Install Dependencies
+          #    command: |
+          #      python3 -m venv venv
+          #      . venv/bin/activate
+          #      pip install --upgrade pip
+          #      pip install --upgrade virtualenv
+          #      # The jessie-updates and jessie-backports areas are now removed from the repositories. So
+          #      # the lines corresponding to those areas have to be removed to fix the resulting errors.
+          #      # This can be removed after upgrading to the image based on Debian Stretch.
+          #      sudo sed -i '/jessie-updates/d' /etc/apt/sources.list
+          #      sudo sed -i '/jessie-backports/d' /etc/apt/sources.list
+          #      sudo apt-get update; sudo apt-get install python2.7-dev
+          #      sudo apt-get install mysql-client
+          #      pip install -r requirements.txt
+          #      pip install -r cleanup_utils/requirements.txt
+          #      sudo apt-get install postgresql-client
+          #      sudo apt-get install unzip
+          #      sudo wget -P /tmp https://releases.hashicorp.com/consul/1.2.1/consul_1.2.1_linux_amd64.zip
+          #- run:
+          #    name: Run Consul
+          #    command: |
+          #      sudo unzip /tmp/consul_1.2.1_linux_amd64.zip -d /usr/local/bin
+          #      consul agent -dev
+          #    background: true
+          #- save_cache:
+          #    key: dependencies-{{ checksum "requirements.txt" }}
+          #    paths:
+          #      - "venv"
+          #- run:
+          #    name: Create Database
+          #    command: make create_db
+          #- run:
+          #    name: Run Tests
+          #    command: |
+          #      . venv/bin/activate
+          #      bin/run-circleci-tests
+          #    no_output_timeout: 47m
+          #    environment:
+          #      ANSIBLE_HOST_KEY_CHECKING: False
+  tests-coverage:
+    docker:
+        - image: circleci/python:3.5.4
+    steps:
+        - run:
+            command: echo "Code Coverage"
   cleanup:
     docker:
       - image: circleci/python:3.5.4
@@ -115,5 +110,17 @@ workflows:
   version: 2
   build-test-and-deploy:
     jobs:
-      - build
-      - cleanup
+        - run-tests:
+            name: run_tests_0
+        - run-tests:
+            name: run_tests_1
+        - run-tests:
+            name: run_tests_2
+        - run-tests:
+            name: run_tests_3
+        - tests-coverage:
+            requires:
+                - run_tests_0
+                - run_tests_1
+                - run_tests_2
+                - run_tests_3
