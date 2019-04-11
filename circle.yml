@@ -61,7 +61,7 @@ jobs:
             sudo apt-get install unzip
             sudo wget -P /tmp https://releases.hashicorp.com/consul/1.2.1/consul_1.2.1_linux_amd64.zip
             make install_system_dependencies
-            npm install -g nyc
+            sudo npm install -g nyc
       - run:
           name: Run Consul
           command: |
