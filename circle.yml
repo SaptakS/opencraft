@@ -135,7 +135,11 @@ workflows:
         - build:
             name: unit_tests
             tests_group: 0
-            tests_type: clean test.unit test.browser
+            tests_type: clean test.unit
+        - build:
+            name: browser_tests
+            tests_group: 0
+            tests_type: clean test.browser
         - build:
             name: js_tests
             tests_group: 0

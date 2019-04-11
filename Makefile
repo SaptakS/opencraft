@@ -27,7 +27,7 @@ WORKERS_LOW_PRIORITY ?= 3
 SHELL ?= /bin/bash
 HONCHO_MANAGE := honcho run python3 manage.py
 HONCHO_MANAGE_TESTS := honcho -e .env.test run python3 manage.py
-RUN_JS_TESTS := xvfb-run --auto-servernum nyc --include=**/*.spec.js --reporter=lcov jasmine-ci --logs --browser firefox
+RUN_JS_TESTS := xvfb-run --auto-servernum nyc --include=../static/js/src/**/*.js --reporter=lcov jasmine-ci --logs --browser firefox
 
 # Parameters ##################################################################
 
@@ -101,16 +101,16 @@ test.quality: clean ## Run quality tests.
 
 test.unit: clean static_external ## Run all unit tests.
 	honcho -e .env.test run coverage run ./manage.py test --noinput -v2
-	coverage html
-	@echo "\nCoverage HTML report at file://`pwd`/build/coverage/index.html\n"
-	@coverage report --fail-under $(COVERAGE_THRESHOLD) || (echo "\nERROR: Coverage is below $(COVERAGE_THRESHOLD)%\n" && exit 2)
+	# coverage html
+	# @echo "\nCoverage HTML report at file://`pwd`/build/coverage/index.html\n"
+	# @coverage report --fail-under $(COVERAGE_THRESHOLD) || (echo "\nERROR: Coverage is below $(COVERAGE_THRESHOLD)%\n" && exit 2)
 
 test.migrations_missing: clean ## Check if migrations are missing.
 	@$(HONCHO_MANAGE_TESTS) makemigrations --dry-run --check
 
 test.browser: clean static_external ## Run browser-specific tests.
 	@echo -e "\nRunning browser tests..."
-	xvfb-run --auto-servernum $(HONCHO_MANAGE_TESTS) test --pattern=browser_*.py --noinput
+	xvfb-run --auto-servernum honcho -e .env.test run coverage run ./manage.py test --pattern=browser_*.py --noinput
 
 test.integration: clean ## Run integration tests.
 ifneq ($(wildcard .env.integration),)
