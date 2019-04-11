@@ -78,3 +78,5 @@ target/
 
 # Ansible
 *.retry
+
+node_modules

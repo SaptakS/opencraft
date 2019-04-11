@@ -100,7 +100,7 @@ test.quality: clean ## Run quality tests.
 	prospector --profile opencraft --uses django
 
 test.unit: clean static_external ## Run all unit tests.
-	honcho -e .env.test run coverage run ./manage.py test --noinput -v2
+	honcho -e .env.test run coverage run --parallel-mode ./manage.py test --noinput -v2
 	# coverage html
 	# @echo "\nCoverage HTML report at file://`pwd`/build/coverage/index.html\n"
 	# @coverage report --fail-under $(COVERAGE_THRESHOLD) || (echo "\nERROR: Coverage is below $(COVERAGE_THRESHOLD)%\n" && exit 2)
@@ -110,7 +110,7 @@ test.migrations_missing: clean ## Check if migrations are missing.
 
 test.browser: clean static_external ## Run browser-specific tests.
 	@echo -e "\nRunning browser tests..."
-	xvfb-run --auto-servernum honcho -e .env.test run coverage run ./manage.py test --pattern=browser_*.py --noinput
+	xvfb-run --auto-servernum honcho -e .env.test run coverage run --parallel-mode ./manage.py test --pattern=browser_*.py --noinput
 
 test.integration: clean ## Run integration tests.
 ifneq ($(wildcard .env.integration),)
@@ -135,10 +135,7 @@ else
 endif
 
 test.js: clean static_external ## Run JS tests.
-	cd instance/tests/js && $(RUN_JS_TESTS)
-	cd instance/tests/js && nyc report
-	cd registration/tests/js && $(RUN_JS_TESTS)
-	cd instance/tests/js && nyc report
+	jasmine
 
 test.instance_js_web: clean static_external ## Run instance-specific JS tests.
 	cd instance/tests/js && jasmine --host 0.0.0.0

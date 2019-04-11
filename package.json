@@ -1,0 +1,23 @@
+{
+  "name": "opencraft",
+  "version": "1.0.0",
+  "description": "Opencraft Console Instance Manager",
+  "main": "index.js",
+  "scripts": {
+    "test": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/open-craft/opencraft.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/open-craft/opencraft/issues"
+  },
+  "homepage": "https://github.com/open-craft/opencraft#readme",
+  "dependencies": {
+    "jasmine": "^3.4.0",
+    "nyc": "^13.3.0"
+  }
+}
