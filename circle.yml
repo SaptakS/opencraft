@@ -91,7 +91,7 @@ jobs:
               - coverage
   coverage:
     docker:
-      - image: circleci/python:3.5.4
+      - image: circleci/python:3.5.4-node
     steps:
       - checkout
       - restore_cache:

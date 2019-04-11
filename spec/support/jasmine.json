@@ -7,7 +7,7 @@
   "helpers": [
     "instance/tests/js/helpers/**/*.js"
   ],
-  src_files:[
+  "src_files":[
     "static/external/js/jquery.min.js",
     "static/external/js/underscore-min.js",
     "static/external/js/angular.min.js",
