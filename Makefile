@@ -27,7 +27,7 @@ WORKERS_LOW_PRIORITY ?= 3
 SHELL ?= /bin/bash
 HONCHO_MANAGE := honcho run python3 manage.py
 HONCHO_MANAGE_TESTS := honcho -e .env.test run python3 manage.py
-RUN_JS_TESTS := xvfb-run --auto-servernum istanbul cover --inculde-all-sources jasmine-ci --logs --browser firefox
+RUN_JS_TESTS := xvfb-run --auto-servernum nyc jasmine-ci --logs --browser firefox
 
 # Parameters ##################################################################
 
