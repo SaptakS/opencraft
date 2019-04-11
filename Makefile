@@ -27,7 +27,7 @@ WORKERS_LOW_PRIORITY ?= 3
 SHELL ?= /bin/bash
 HONCHO_MANAGE := honcho run python3 manage.py
 HONCHO_MANAGE_TESTS := honcho -e .env.test run python3 manage.py
-RUN_JS_TESTS := xvfb-run --auto-servernum nyc jasmine-ci --logs --browser firefox
+RUN_JS_TESTS := xvfb-run --auto-servernum nyc --reporter=lcov jasmine-ci --logs --browser firefox
 
 # Parameters ##################################################################
 
@@ -100,7 +100,7 @@ test.quality: clean ## Run quality tests.
 	prospector --profile opencraft --uses django
 
 test.unit: clean static_external ## Run all unit tests.
-	honcho -e .env.test run coverage run ./manage.py test --noinput
+	honcho -e .env.test run coverage run ./manage.py test --noinput -v2
 	coverage html
 	@echo "\nCoverage HTML report at file://`pwd`/build/coverage/index.html\n"
 	@coverage report --fail-under $(COVERAGE_THRESHOLD) || (echo "\nERROR: Coverage is below $(COVERAGE_THRESHOLD)%\n" && exit 2)
@@ -115,10 +115,10 @@ test.browser: clean static_external ## Run browser-specific tests.
 test.integration: clean ## Run integration tests.
 ifneq ($(wildcard .env.integration),)
 	echo -e "\nRunning integration tests with credentials from .env.integration file..."
-	honcho -e .env.integration run ./manage.py test --pattern=integration_*.py --noinput
+	honcho -e .env.integration run ./manage.py test --pattern=integration_*.py --noinput -v2
 else ifdef OPENSTACK_USER
 	echo -e "\nRunning integration tests with credentials from environment variables..."
-	./manage.py test --pattern=integration_*.py --noinput
+	./manage.py test --pattern=integration_*.py --noinput -v2
 else
 	echo -e "\nIntegration tests skipped (create a '.env.integration' file to run them)"
 endif
@@ -136,7 +136,9 @@ endif
 
 test.js: clean static_external ## Run JS tests.
 	cd instance/tests/js && $(RUN_JS_TESTS)
+	nyc report
 	cd registration/tests/js && $(RUN_JS_TESTS)
+	nyc report
 
 test.instance_js_web: clean static_external ## Run instance-specific JS tests.
 	cd instance/tests/js && jasmine --host 0.0.0.0
