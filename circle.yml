@@ -84,7 +84,7 @@ jobs:
                 cp .coverage.* /tmp/coverage/$CIRCLE_SHA1/.
             fi
             if [ -d coverage ]; then
-                cp coverage/* /tmp/coverage/$CIRCLE_SHA1/.
+                cp -R coverage/* /tmp/coverage/$CIRCLE_SHA1/.
             fi
           no_output_timeout: 47m
           environment:
