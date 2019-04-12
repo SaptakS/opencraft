@@ -115,10 +115,10 @@ test.browser: clean static_external ## Run browser-specific tests.
 test.integration: clean ## Run integration tests.
 ifneq ($(wildcard .env.integration),)
 	echo -e "\nRunning integration tests with credentials from .env.integration file..."
-	honcho -e .env.integration run ./manage.py test --pattern=integration_*.py --noinput -v2
+	honcho -e .env.integration run coverage run --parallel-mode ./manage.py test --pattern=integration_*.py --noinput -v2
 else ifdef OPENSTACK_USER
 	echo -e "\nRunning integration tests with credentials from environment variables..."
-	./manage.py test --pattern=integration_*.py --noinput -v2
+	coverage run --parallel-mode ./manage.py test --pattern=integration_*.py --noinput -v2
 else
 	echo -e "\nIntegration tests skipped (create a '.env.integration' file to run them)"
 endif
