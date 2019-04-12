@@ -177,35 +177,38 @@ workflows:
           tests_type: clean test.js
           requires:
             - quality_migrations_tests
-      #- build:
-      #    name: integration_tests_group_1
-      #    tests_group: 1
-      #    tests_type: test.integration
-      #    requires:
-      #      - python_unit_tests
-      #      - browser_tests
-      #      - js_tests
-      #- build:
-      #    name: integration_tests_group_2
-      #    tests_group: 2
-      #    tests_type: test.integration
-      #    requires:
-      #      - python_unit_tests
-      #      - browser_tests
-      #      - js_tests
-      #- build:
-      #    name: integration_tests_group_3
-      #    tests_group: 3
-      #    tests_type: test.integration
-      #    requires:
-      #      - python_unit_tests
-      #      - browser_tests
-      #      - js_tests
-      - coverage:
+      - build:
+          name: integration_tests_group_1
+          tests_group: 1
+          tests_type: test.integration
           requires:
             - python_unit_tests
             - browser_tests
             - js_tests
+      - build:
+          name: integration_tests_group_2
+          tests_group: 2
+          tests_type: test.integration
+          requires:
+            - python_unit_tests
+            - browser_tests
+            - js_tests
+      - build:
+          name: integration_tests_group_3
+          tests_group: 3
+          tests_type: test.integration
+          requires:
+            - python_unit_tests
+            - browser_tests
+            - js_tests
+      - coverage:
+          requires:
+            - integration_tests_group_1
+            - integration_tests_group_2
+            - integration_tests_group_3
+              #- python_unit_tests
+              #- browser_tests
+              #- js_tests
   cleanup-workflow:
     triggers:
       - schedule:
