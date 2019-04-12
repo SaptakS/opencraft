@@ -136,6 +136,7 @@ endif
 
 test.js: clean static_external ## Run JS tests.
 	node_modules/.bin/karma start
+	cat coverage/coverage.txt
 
 test.instance_js_web: clean static_external ## Run instance-specific JS tests.
 	cd instance/tests/js && jasmine --host 0.0.0.0

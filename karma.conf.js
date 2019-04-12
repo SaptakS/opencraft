@@ -29,6 +29,7 @@ module.exports = function(config) {
       'instance/static/js/src/**/*.js',
       'registration/static/js/src/**/*.js',
       'instance/tests/fixtures/**/*.json',
+      'instance/static/html/instance/**/*.html',
       'instance/tests/js/**/*spec.js',
       'registration/tests/js/**/*spec.js',
     ],
@@ -42,7 +43,10 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      '**/*.json': ['json_fixtures']
+      '**/*.json': ['json_fixtures'],
+      '**/*.html': ['html2js'],
+      'instance/static/js/src/**/*.js': ['coverage'],
+      'registration/static/js/src/**/*.js': ['coverage'],
     },
 
     plugins: [
@@ -50,13 +54,14 @@ module.exports = function(config) {
         'karma-firefox-launcher',
         'karma-jasmine',
         'karma-json-fixtures-preprocessor',
+        'karma-html2js-preprocessor',
         'karma-jasmine-html-reporter',
         'karma-coverage',
     ],
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],
+    reporters: ['progress', 'coverage'],
 
 
     // web server port
@@ -91,6 +96,18 @@ module.exports = function(config) {
 
     jsonFixturesPreprocessor: {
       variableName: '__json__'
+    },
+
+    coverageReporter: {
+        type: 'text',
+        dir: 'coverage/',
+        file: 'coverage.txt',
+        check: {
+            global: {
+                statements: 80,
+                branches: 70
+            }
+        }
     }
 
   })
