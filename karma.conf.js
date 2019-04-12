@@ -99,10 +99,19 @@ module.exports = function(config) {
     },
 
     coverageReporter: {
-        type: 'text',
-        dir: 'coverage/',
-        subdir: 'text',
-        file: 'coverage.txt',
+        reporters: [
+            {
+                type: 'text',
+                dir: 'coverage/',
+                subdir: 'text',
+                file: 'coverage.txt',
+            },
+            {
+                type: 'lcov',
+                dir: 'coverage/',
+                subdir: 'lcovonly',
+            },
+        ],
         check: {
             global: {
                 statements: 75,
