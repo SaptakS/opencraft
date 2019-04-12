@@ -27,6 +27,10 @@ describe('Instance app', function () {
         rootScope,
         $timeout;
 
+    beforeAll(function() {
+        fixture.setBase('instance/tests/fixtures');
+    });
+
     function flushHttpBackend() {
         // Convenience method since httpBackend.flush() seems to generate calls
         // to $timeout which also need to be flushed.
@@ -56,7 +60,7 @@ describe('Instance app', function () {
         };
 
         // Models
-        instanceList = jasmine.loadFixture('api/instances_list.json');
+        instanceList = fixture.load('api/instances_list.json');
         httpBackend.whenGET('/api/v1/instance/').respond(instanceList);
 
         // Templates
@@ -76,6 +80,7 @@ describe('Instance app', function () {
         httpBackend.verifyNoOutstandingExpectation();
         httpBackend.verifyNoOutstandingRequest();
         $timeout.verifyNoPendingTasks();
+        fixture.cleanup();
     });
 
 
@@ -148,7 +153,7 @@ describe('Instance app', function () {
 
         beforeEach(function() {
             // Models
-            instanceDetail = jasmine.loadFixture('api/instance_detail.json');
+            instanceDetail = fixture.load('api/instance_detail.json');
             httpBackend.whenGET('/api/v1/instance/50/').respond(instanceDetail);
 
             $scope = rootScope.$new();
@@ -293,12 +298,12 @@ describe('Instance app', function () {
 
         beforeEach(function() {
             // Models
-            appServerDetail = jasmine.loadFixture('api/appserver_detail.json');
+            appServerDetail = fixture.load('api/appserver_detail.json');
             httpBackend.whenGET('/api/v1/openedx_appserver/8/').respond(appServerDetail);
 
             // Mock the parent scope (instance details)
             parentScope = rootScope.$new(); // Scope for the Instance "Details" controller
-            parentScope.instance = jasmine.loadFixture('api/instance_detail.json');
+            parentScope.instance = fixture.load('api/instance_detail.json');
             inject(function($q) {
                 // Mock tthe instance refresh() method and make sure to return a promise.
                 parentScope.refresh = jasmine.createSpy('Instance refresh method').and.returnValue($q.when({}));

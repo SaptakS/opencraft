@@ -16,13 +16,17 @@
     "url": "https://github.com/open-craft/opencraft/issues"
   },
   "homepage": "https://github.com/open-craft/opencraft#readme",
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
     "jasmine": "^3.4.0",
     "karma": "^4.0.1",
     "karma-cli": "^2.0.0",
     "karma-coverage": "^1.1.2",
     "karma-firefox-launcher": "^1.1.0",
+    "karma-fixture": "^0.2.6",
     "karma-jasmine": "^2.0.1",
+    "karma-json-fixtures-preprocessor": "0.0.6",
+    "karma-jasmine-html-reporter": "^1.4.0",
     "nyc": "^13.3.0"
   }
 }

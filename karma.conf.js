@@ -10,7 +10,7 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['jasmine'],
+    frameworks: ['jasmine', 'fixture'],
 
 
     // list of files / patterns to load in the browser
@@ -28,8 +28,9 @@ module.exports = function(config) {
       'static/external/js/icheck.min.js',
       'instance/static/js/src/**/*.js',
       'registration/static/js/src/**/*.js',
+      'instance/tests/fixtures/**/*.json',
       'instance/tests/js/**/*spec.js',
-      'registration/tests/js/**/*spec.js'
+      'registration/tests/js/**/*spec.js',
     ],
 
 
@@ -41,13 +42,16 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
+      '**/*.json': ['json_fixtures']
     },
 
     plugins: [
+        'karma-fixture',
         'karma-firefox-launcher',
-        'karma-jasmine'
-        //'karma-jasmine-html-reporter',
-        //'karma-coverage',
+        'karma-jasmine',
+        'karma-json-fixtures-preprocessor',
+        'karma-jasmine-html-reporter',
+        'karma-coverage',
     ],
     // test results reporter to use
     // possible values: 'dots', 'progress'
@@ -83,6 +87,11 @@ module.exports = function(config) {
 
     // Concurrency level
     // how many browser should be started simultaneous
-    concurrency: Infinity
+    concurrency: Infinity,
+
+    jsonFixturesPreprocessor: {
+      variableName: '__json__'
+    }
+
   })
 }
