@@ -78,7 +78,7 @@ module.exports = function(config) {
 
 
     // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: true,
+    autoWatch: false,
 
 
     // start these browsers
@@ -101,11 +101,12 @@ module.exports = function(config) {
     coverageReporter: {
         type: 'text',
         dir: 'coverage/',
+        subdir: 'text',
         file: 'coverage.txt',
         check: {
             global: {
-                statements: 80,
-                branches: 70
+                statements: 75,
+                branches: 65
             }
         }
     }
