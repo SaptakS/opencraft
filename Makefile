@@ -27,10 +27,9 @@ WORKERS_LOW_PRIORITY ?= 3
 SHELL ?= /bin/bash
 HONCHO_MANAGE := honcho run python3 manage.py
 HONCHO_MANAGE_TESTS := honcho -e .env.test run python3 manage.py
-HONCHO_COVERAGE_TEST := honcho -e .env.test run coverage run --parallel-mode ./manage.py test --noinput -v2
-HONCHO_COVERAGE_INTEGRATION := honcho -e .env.integration run coverage run --parallel-mode ./manage.py test --noinput -v2
-COVERAGE := coverage run --parallel-mode ./manage.py test --noinput -v2
-RUN_JS_TESTS := xvfb-run --auto-servernum nyc --include=../static/js/src/**/*.js --reporter=lcov jasmine-ci --logs --browser firefox
+HONCHO_COVERAGE_TEST := honcho -e .env.test run coverage run --branch --parallel-mode ./manage.py test --noinput -v2
+HONCHO_COVERAGE_INTEGRATION := honcho -e .env.integration run coverage run --branch --parallel-mode ./manage.py test --noinput -v2
+COVERAGE := coverage run --branch --parallel-mode ./manage.py test --noinput -v2
 
 # Parameters ##################################################################
 
