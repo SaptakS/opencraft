@@ -127,7 +127,7 @@ jobs:
           command: |
               . venv/bin/activate
               coverage combine /tmp/workspace/coverage/$CIRCLE_SHA1/
-              coverage report --fail-under $(COVERAGE_THRESHOLD) || (echo "\nERROR: Coverage is below $(COVERAGE_THRESHOLD)%\n" && exit 2)
+              make cov.html
   cleanup:
     docker:
       - image: circleci/python:3.5.4
