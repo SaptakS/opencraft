@@ -64,14 +64,15 @@ install_system_db_dependencies: apt_get_update ## Install system-level DB depend
 
 install_system_dependencies: apt_get_update ## Install system-level dependencies from `debian_packages.lst`. Ignores comments.
 	sudo -E apt-get install -y `grep -v '^#' debian_packages.lst | tr -d '\r'`
-	if [ -z $$CI ] && [ ! -e /usr/bin/firefox ]; then \
-		echo "Installing Firefox because we're not in a CI environment."; \
-		sudo apt-get install -y libgtk-3-dev libasound2; \
-		sudo curl -sL -o /tmp/firefox.tar.bz2 'https://ftp.mozilla.org/pub/firefox/releases/47.0/linux-x86_64/en-US/firefox-47.0.tar.bz2'; \
-		sudo tar -xvjf /tmp/firefox.tar.bz2 -C /opt/; \
-		sudo ln -s /opt/firefox/firefox /usr/bin/firefox; \
+	if [ -z $$CI ] ; then \
+		echo "Installing Firefox because we're not in a CI."; \
+		sudo apt-get install -y libgtk3.0-cil-dev libasound2 libasound2 libdbus-glib-1-2 libdbus-1-3; \
+		sudo curl -sL -o /tmp/firefox.deb 'https://s3.amazonaws.com/circle-downloads/firefox-mozilla-build_47.0.1-0ubuntu1_amd64.deb'; \
+		echo 'ef016febe5ec4eaf7d455a34579834bcde7703cb0818c80044f4d148df8473bb  /tmp/firefox.deb' | sha256sum -c; \
+		sudo dpkg -i /tmp/firefox.deb || sudo apt-get -f install; \
+		sudo rm -rf /tmp/firefox.deb; \
 	else \
-		echo "Not installing Firefox either because this is a CI environment or because Firefox is already installed."; \
+		echo "Not installing Firefox either because this is a CI."; \
 	fi
 
 install_js_dependencies: ## Install dependencies for JS code.
