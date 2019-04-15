@@ -128,7 +128,7 @@ jobs:
               . venv/bin/activate
               coverage combine /tmp/workspace/coverage/$CIRCLE_SHA1/
               make cov.html
-              if [ -e coverage/text/coverage.txt ]; then cat coverage/text/coverage.txt; fi
+              if [ -e /tmp/workspace/coverage/text/coverage.txt ]; then cat /tmp/workspace/coverage/text/coverage.txt; fi
   cleanup:
     docker:
       - image: circleci/python:3.5.4
