@@ -65,7 +65,7 @@ install_system_dependencies: apt_get_update ## Install system-level dependencies
 	sudo -E apt-get install -y `grep -v '^#' debian_packages.lst | tr -d '\r'`
 	if [ -z $$CI ] ; then \
 		echo "Installing Firefox because we're not in a CI."; \
-		sudo apt-get install -y libgtk3.0-cil-dev libasound2 libasound2 libdbus-glib-1-2 libdbus-1-3; \
+		sudo apt-get install -y libgtk3.0-cil-dev libasound2 libasound2 libdbus-glib-1-2 libdbus-1-3 --no-install-recommends; \
 		sudo curl -sL -o /tmp/firefox.deb 'https://s3.amazonaws.com/circle-downloads/firefox-mozilla-build_47.0.1-0ubuntu1_amd64.deb'; \
 		echo 'ef016febe5ec4eaf7d455a34579834bcde7703cb0818c80044f4d148df8473bb  /tmp/firefox.deb' | sha256sum -c; \
 		sudo dpkg -i /tmp/firefox.deb || sudo apt-get -f install; \
