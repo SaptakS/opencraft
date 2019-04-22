@@ -92,7 +92,6 @@ def _create_database(cursor, database):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         cursor.execute('CREATE DATABASE IF NOT EXISTS `{db}` DEFAULT CHARACTER SET utf8'.format(db=database))
-        cursor.execute('USE `{db}`; CREATE TABLE IF NOT EXISTS `opencraft` (col INT)'.format(db=database))
 
 
 def _create_user(cursor, user, password):
